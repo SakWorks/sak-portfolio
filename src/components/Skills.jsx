@@ -74,24 +74,23 @@ const Skills = () => {
             style={{ width: RADIUS * 2, height: RADIUS * 2 }}
           />
 
-          <motion.div
-            animate={{
-              boxShadow: [
-                "0 0 20px rgba(168,85,247,0.3)",
-                "0 0 50px rgba(168,85,247,0.65)",
-                "0 0 20px rgba(168,85,247,0.3)",
-              ],
-            }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            className="relative z-10 w-32 h-32 md:w-40 md:h-40 rounded-full bg-black border border-purple-500/50 flex flex-col items-center justify-center text-center"
-          >
-            <span className="text-white font-black text-xl md:text-2xl" style={{ fontFamily: "Orbitron, sans-serif" }}>
-              SAK
-            </span>
-            <span className="text-[9px] md:text-[10px] text-purple-400 tracking-widest mt-1">
-              SKILL SYSTEM
-            </span>
-          </motion.div>
+          <div className="relative z-10 w-32 h-32 md:w-40 md:h-40 flex items-center justify-center">
+  <motion.div
+    aria-hidden="true"
+    animate={{ opacity: [0.35, 0.85, 0.35] }}
+    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+    className="absolute inset-0 rounded-full pointer-events-none"
+    style={{ boxShadow: "0 0 45px 10px rgba(168,85,247,0.55)", willChange: "opacity" }}
+  />
+  <div className="relative w-full h-full rounded-full bg-black border border-purple-500/50 flex flex-col items-center justify-center text-center">
+    <span className="text-white font-black text-xl md:text-2xl" style={{ fontFamily: "Orbitron, sans-serif" }}>
+      SAK
+    </span>
+    <span className="text-[9px] md:text-[10px] text-purple-400 tracking-widest mt-1">
+      SKILL SYSTEM
+    </span>
+  </div>
+</div>
 
           <motion.div
             className="absolute w-full h-full"
@@ -116,22 +115,34 @@ const Skills = () => {
                     transition={{ duration: DURATION, repeat: Infinity, ease: "linear" }}
                     style={{ transform: `rotate(-${angle}deg)` }}
                   >
-                    <motion.button
-                      type="button"
-                      onClick={() => setActive(i)}
-                      whileHover={{ scale: 1.2 }}
-                      whileTap={{ scale: 0.9 }}
-                      animate={{ scale: active === i ? 1.3 : 1 }}
-                      transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                      style={{
-                        backgroundColor: active === i ? skill.color : "rgba(255,255,255,0.06)",
-                        borderColor: skill.color,
-                        boxShadow: active === i ? `0 0 25px ${skill.color}` : "none",
-                      }}
-                      className="w-12 h-12 md:w-14 md:h-14 rounded-full border-2 flex items-center justify-center text-white text-xl"
-                    >
-                      {skill.icon}
-                    </motion.button>
+                    <div className="relative w-12 h-12 md:w-14 md:h-14">
+  {active === i && (
+    <motion.div
+      aria-hidden="true"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="absolute inset-0 rounded-full pointer-events-none"
+      style={{ boxShadow: `0 0 25px ${skill.color}`, willChange: "opacity" }}
+    />
+  )}
+  <motion.button
+    type="button"
+    onClick={() => setActive(i)}
+    whileHover={{ scale: 1.2 }}
+    whileTap={{ scale: 0.9 }}
+    animate={{ scale: active === i ? 1.3 : 1 }}
+    transition={{ type: "spring", stiffness: 260, damping: 20 }}
+    style={{
+      backgroundColor: active === i ? skill.color : "rgba(255,255,255,0.06)",
+      borderColor: skill.color,
+      willChange: "transform",
+    }}
+    className="relative w-full h-full rounded-full border-2 flex items-center justify-center text-white text-xl"
+  >
+    {skill.icon}
+  </motion.button>
+</div>
                   </motion.div>
                 </div>
               );
