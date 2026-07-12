@@ -68,14 +68,12 @@ const Skills = () => {
       </motion.div>
 
       <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-        {/* Orbit system */}
         <div className="relative flex items-center justify-center h-[460px] md:h-[500px]">
           <div
             className="absolute rounded-full border border-purple-500/15"
             style={{ width: RADIUS * 2, height: RADIUS * 2 }}
           />
 
-          {/* central hub */}
           <motion.div
             animate={{
               boxShadow: [
@@ -95,7 +93,6 @@ const Skills = () => {
             </span>
           </motion.div>
 
-          {/* single rotating orbit layer holding all icons */}
           <motion.div
             className="absolute w-full h-full"
             style={{ top: 0, left: 0 }}
@@ -114,7 +111,6 @@ const Skills = () => {
                     transform: `rotate(${angle}deg) translateY(-${RADIUS}px)`,
                   }}
                 >
-                  {/* counter-rotate to keep icon upright */}
                   <motion.div
                     animate={{ rotate: -360 }}
                     transition={{ duration: DURATION, repeat: Infinity, ease: "linear" }}
@@ -143,7 +139,6 @@ const Skills = () => {
           </motion.div>
         </div>
 
-        {/* Active skill detail panel */}
         <AnimatePresence mode="wait">
           <motion.div
             key={active}
@@ -151,7 +146,7 @@ const Skills = () => {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: -20, scale: 0.96 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="bg-white/5 border rounded-2xl p-6 md:p-8 backdrop-blur-sm"
+            className="bg-[#0a0a14] border rounded-2xl p-6 md:p-8"
             style={{ borderColor: `${skills[active].color}55` }}
           >
             <div className="flex items-center gap-4 mb-4">
