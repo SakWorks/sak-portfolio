@@ -6,13 +6,31 @@ html {
 }
 
 body {
-  background-color: #000;
+  background-color: #050816;
   margin: 0;
   overscroll-behavior: none;
 }
 
 * {
   scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, a, [role="button"] {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  outline: none;
+  -webkit-touch-callout: none;
+}
+
+button:focus, a:focus, [role="button"]:focus {
+  outline: none;
+}
+
+input, textarea {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 ::-webkit-scrollbar {
@@ -43,9 +61,10 @@ body {
   position: absolute;
   top: 50%;
   left: 50%;
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  border: 1.5px solid rgba(192, 132, 252, 0.55);
   border-radius: 50%;
   transform-style: preserve-3d;
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
 }
 
 .orbit-ring-3d.r1 {
@@ -62,15 +81,6 @@ body {
   transform: rotateX(72deg) rotate(0deg);
   animation: spin3d 22s linear infinite reverse;
   opacity: 0.7;
-}
-.orbit-ring-3d {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  border: 1.5px solid rgba(192, 132, 252, 0.55);
-  border-radius: 50%;
-  transform-style: preserve-3d;
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
 }
 
 .orbit-star {
