@@ -34,7 +34,7 @@ function About() {
               parliamentary debate competitions.
             </p>
             <p className="text-gray-300 leading-relaxed mb-4">
-              I completed my Intermediate of Computer Science from GCU Lahore. I served as Vice President of the Young Speakers' Union and
+              I completed my Intermediate of Computer Sciences from GCU Lahore. I served as Vice President of the Young Speakers' Union and
               previously served as President of Bazm-e-Shahab, Government
               College Lahore (GCU) literary society, where I organized
               training camps, competitions, and events for hundreds of
