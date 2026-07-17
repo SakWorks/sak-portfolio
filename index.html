@@ -2,15 +2,37 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-<link rel="icon" type="image/png" href="/favicon.png" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Favicon: multiple sizes so browsers pick the sharpest one for
+         the context (16/32 for tabs, 180 for iOS home-screen bookmarks)
+         instead of scaling one fixed-size image up or down. -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Tints the browser chrome (address bar / status bar) on mobile
+         to match your dark theme instead of default white -->
+    <meta name="theme-color" content="#050816" />
+
+    <!-- Lets iOS treat the site properly if someone adds it to their
+         home screen -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SAK" />
+
+    <!-- Basic SEO - helps how the page looks when shared as a link -->
+    <meta name="description" content="Subhan Anjum Khan (SAK) - Full Stack Engineer specializing in SaaS & Web Development, e-commerce operations, and business automation." />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">    <title>SAK | Portfolio</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
-</head>
+    <title>SAK | Portfolio</title>
+  </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>

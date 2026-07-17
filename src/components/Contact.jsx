@@ -7,6 +7,7 @@ import {
   FaWhatsapp,
   FaInstagram,
 } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -40,6 +41,13 @@ const contactMethods = [
     color: "#ec4899",
   },
   {
+    icon: <FaXTwitter />,
+    label: "X",
+    value: "SAK Council",
+    href: "https://x.com/trade_sak42731",
+    color: "#e5e7eb",
+  },
+  {
     icon: <FaMapMarkerAlt />,
     label: "Location",
     value: "Lahore, Pakistan",
@@ -48,7 +56,7 @@ const contactMethods = [
   },
 ];
 
-const ContactCard = ({ item, index }) => {
+const ContactCard = ({ item, index, extraClassName = "" }) => {
   const [hovered, setHovered] = useState(false);
   const Wrapper = item.href ? motion.a : motion.div;
 
@@ -80,7 +88,7 @@ const ContactCard = ({ item, index }) => {
         background: "rgba(255,255,255,0.03)",
         backdropFilter: "blur(20px)",
       }}
-      className="flex h-full cursor-pointer flex-col items-center rounded-3xl border p-5 text-center md:p-6"
+      className={`flex h-full cursor-pointer flex-col items-center rounded-3xl border p-5 text-center md:p-6 ${extraClassName}`}
     >
       <motion.div
         animate={{
@@ -143,10 +151,19 @@ const Contact = () => {
           Reach out through whichever channel works best for you.
         </motion.p>
 
-        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-5 md:grid-cols-5">
-          {contactMethods.map((item, i) => (
-            <ContactCard key={item.label} item={item} index={i} />
-          ))}
+        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-5 md:grid-cols-6">
+          {contactMethods.map((item, i) => {
+            const isLoneLast =
+              i === contactMethods.length - 1 && contactMethods.length % 2 !== 0;
+            return (
+              <ContactCard
+                key={item.label}
+                item={item}
+                index={i}
+                extraClassName={isLoneLast ? "col-span-2 mx-auto w-1/2 md:col-span-1 md:w-full" : ""}
+              />
+            );
+          })}
         </div>
       </div>
     </section>
