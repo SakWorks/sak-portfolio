@@ -63,7 +63,7 @@ const Hero = () => {
     <section
       ref={ref}
       id="home"
-      className="relative min-h-screen flex flex-col items-center justify-center px-6 md:px-16 pt-28 pb-16 overflow-hidden text-center"
+      className="relative min-h-screen flex flex-col items-center justify-center px-6 md:px-16 pt-32 md:pt-36 pb-16 overflow-hidden text-center"
     >
       <motion.div
         style={{ opacity: fadeOpacity, y: fadeY }}
@@ -72,21 +72,25 @@ const Hero = () => {
         transition={{ duration: 0.8 }}
         className="max-w-3xl mx-auto mb-10"
       >
-        <p className="text-purple-400 font-medium mb-3">Hi, I am</p>
+        <p className="text-purple-300/90 font-medium mb-4 text-xs md:text-sm uppercase tracking-[0.3em]">
+          Hi, I am
+        </p>
 
-        <h1 className="font-extrabold leading-tight mb-4 text-[clamp(1.8rem,6vw,3.75rem)] whitespace-nowrap">
-          <span className="text-white">Subhan </span>
-          <span className="bg-gradient-to-r from-purple-400 to-fuchsia-400 bg-clip-text text-transparent">
-            Anjum
+        <h1 className="font-extrabold leading-[1.05] mb-5 text-[clamp(2rem,7vw,4.25rem)] whitespace-nowrap tracking-tight">
+          <span className="bg-gradient-to-r from-sky-300 via-purple-300 to-fuchsia-300 bg-clip-text text-transparent">
+            Subhan
           </span>
-          <span className="text-white"> Khan</span>
+          <span className="text-white"> Anjum </span>
+          <span className="bg-gradient-to-r from-sky-300 via-purple-300 to-fuchsia-300 bg-clip-text text-transparent">
+            Khan
+          </span>
         </h1>
 
-        <h2 className="text-xl md:text-2xl text-gray-300 mb-6 min-h-[2rem]">
+        <h2 className="text-lg md:text-2xl text-gray-300 mb-7 min-h-[2rem] font-medium">
           I am <TypewriterText />
         </h2>
 
-        <p className="text-gray-400 leading-relaxed max-w-xl mx-auto">
+        <p className="text-gray-400 leading-relaxed max-w-xl mx-auto text-[15px] md:text-base">
           I build fast, responsive, and visually engaging web experiences
           while bringing a rare combination of technical skill and strong
           communication. I am a dedicated team player who thrives on solving
@@ -105,19 +109,19 @@ const Hero = () => {
           href="https://www.linkedin.com/in/subhan-anjum-khan-9b9501295"
           target="_blank"
           rel="noopener noreferrer"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-2 px-6 py-3 rounded-full bg-purple-600 hover:bg-purple-500 text-white font-semibold transition-colors duration-300"
+          whileHover={{ scale: 1.04, boxShadow: "0 0 30px rgba(168,85,247,0.55)" }}
+          whileTap={{ scale: 0.96 }}
+          className="flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white text-sm font-semibold shadow-[0_0_20px_rgba(168,85,247,0.35)] transition-shadow duration-300"
         >
           <FaLinkedin /> Connect on LinkedIn
         </motion.a>
         <motion.a
           href="#tech-stack"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="flex items-center gap-2 px-6 py-3 rounded-full border border-purple-500 text-purple-400 hover:bg-purple-500 hover:text-white font-semibold transition-colors duration-300"
+          whileHover={{ scale: 1.04, backgroundColor: "rgba(255,255,255,0.08)" }}
+          whileTap={{ scale: 0.96 }}
+          className="flex items-center gap-2 px-6 py-3 rounded-full border border-white/15 bg-white/[0.03] text-gray-200 text-sm font-semibold backdrop-blur-xl transition-colors duration-300"
         >
-          <FaLayerGroup /> SAK Stack
+          <FaLayerGroup className="text-purple-300" /> SAK Stack
         </motion.a>
       </motion.div>
 

@@ -17,7 +17,8 @@ function About() {
             Who is <span className="text-purple-500">SAK</span>?
           </h2>
           <p className="text-gray-400 text-center mb-10">
-            Get to know a bit more about who I am
+            Get to know a bit more about our administrator
+      
           </p>
         </div>
 

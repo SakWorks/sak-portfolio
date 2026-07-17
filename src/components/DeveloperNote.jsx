@@ -1,8 +1,21 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+
+const usePointerFine = () => {
+  const [fine, setFine] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(pointer: fine)");
+    setFine(mq.matches);
+    const handler = () => setFine(mq.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return fine;
+};
 
 const DeveloperNote = () => {
   const ref = useRef(null);
+  const pointerFine = usePointerFine();
   const [hovered, setHovered] = useState(false);
   const [lit, setLit] = useState(false);
 
@@ -13,6 +26,7 @@ const DeveloperNote = () => {
   const shineX = useTransform(x, [-0.5, 0.5], ["0%", "100%"]);
 
   const handleMouseMove = (e) => {
+    if (!ref.current || !pointerFine) return;
     const rect = ref.current.getBoundingClientRect();
     x.set((e.clientX - rect.left) / rect.width - 0.5);
     y.set((e.clientY - rect.top) / rect.height - 0.5);
@@ -26,8 +40,15 @@ const DeveloperNote = () => {
 
   const active = hovered || lit;
 
+  const fadeUp = (delay) => ({
+    initial: { opacity: 0, y: 12 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, amount: 0.5 },
+    transition: { duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] },
+  });
+
   return (
-    <section className="relative py-16 px-6 md:px-16">
+    <section id="developer-note" className="relative py-16 px-6 md:px-16">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -42,7 +63,13 @@ const DeveloperNote = () => {
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={handleLeave}
           onClick={() => setLit((prev) => !prev)}
-          style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+          style={{
+            rotateX: pointerFine ? rotateX : 0,
+            rotateY: pointerFine ? rotateY : 0,
+            transformStyle: "preserve-3d",
+            contain: "layout paint style",
+            willChange: active ? "transform" : "auto",
+          }}
           animate={{
             scale: active ? 1.015 : 1,
             borderColor: active ? "rgba(216,180,254,0.9)" : "rgba(168,85,247,0.2)",
@@ -61,8 +88,8 @@ const DeveloperNote = () => {
             transition={{ duration: 2.4, repeat: active ? Infinity : 0, ease: "easeInOut" }}
           />
 
-          {/* shine sweep on hover */}
-          {hovered && (
+          {/* shine sweep on hover - desktop only, since there's no cursor to track on touch */}
+          {hovered && pointerFine && (
             <motion.div
               className="absolute inset-0 pointer-events-none"
               style={{
@@ -87,6 +114,7 @@ const DeveloperNote = () => {
 
           <div className="relative z-10">
             <motion.p
+              {...fadeUp(0)}
               animate={{
                 color: active ? "#e9d5ff" : "#c084fc",
                 letterSpacing: active ? "0.18em" : "0.05em",
@@ -98,6 +126,7 @@ const DeveloperNote = () => {
             </motion.p>
 
             <motion.p
+              {...fadeUp(0.08)}
               animate={{
                 opacity: active ? 1 : 0.85,
                 textShadow: active
@@ -111,6 +140,7 @@ const DeveloperNote = () => {
             </motion.p>
 
             <motion.p
+              {...fadeUp(0.16)}
               animate={{
                 color: active ? "#f3e8ff" : "#d1d5db",
                 textShadow: active
@@ -121,24 +151,16 @@ const DeveloperNote = () => {
               transition={{ duration: 0.5 }}
               className="text-sm md:text-base leading-relaxed max-w-2xl mx-auto"
             >
-              I believe that communication, innovation, and integrity are the
-              foundations of lasting success. As a Debater, Amazon Virtual
-              Assistant, Web Developer, and Software Engineering student, I
-              combine persuasive communication with technical expertise to
-              deliver impactful digital solutions. My experience spans
-              e-commerce, web development, and business growth, supported by
-              a passion for leadership, continuous learning, and
-              problem-solving. My goal is to create value, build meaningful
-              partnerships, and turn ideas into results that make a lasting
-              impact.
+              "There was a time when this was only a dream, a quiet belief that discipline, honest communication, and curiosity could one day become something real. Today, that dream has become a path. As a Debater, Amazon Virtual Assistant, Web Developer, and Software Engineering student, I have learned that lasting success is built one deliberate effort at a time, not inherited overnight. I still believe communication, innovation, and integrity outlast any single achievement. My journey across e-commerce, web development, and business growth has taught me that value comes not from chasing outcomes, but from showing up with purpose turning ideas into results that quietly outlive the moment they were made."
             </motion.p>
 
             <motion.p
-              animate={{ opacity: active ? 1 : 0, y: active ? 0 : 6 }}
+              {...fadeUp(0.24)}
+              animate={{ opacity: active ? 1 : 0.6 }}
               transition={{ duration: 0.5 }}
               className="text-purple-400 text-xs mt-6 tracking-widest"
             >
-              — SAK Council —
+              Published by SAK Council
             </motion.p>
           </div>
         </motion.div>

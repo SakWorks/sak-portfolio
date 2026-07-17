@@ -1,87 +1,81 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform, useMotionTemplate } from "framer-motion";
-import { FaTrophy, FaMedal, FaTimes } from "react-icons/fa";
+import { FaCrown, FaTimes } from "react-icons/fa";
 
-const achievements = [
+const positions = [
   {
-    icon: <FaTrophy />,
-    logo: "/achievements/logos/king-edward.png",
-    photo: "/achievements/photos/king-edward.jpg",
-    award: "Best Speaker",
-    competition: "25th All Pakistan Debating Championship",
-    institution: "King Edward Medical University",
-    year: "2024",
-    memory:
-      "A defining milestone where preparation met opportunity. Competing among Pakistan's finest speakers strengthened my confidence, sharpened my critical thinking, and reinforced the value of communicating with clarity under pressure.",
+    role: "Vice President",
+    society: "Young Speakers' Union",
+    category: "Debating Society",
+    org: "Government College University, Lahore",
+    date: "2023 – 2025",
+    logo: "/leadership/logos/ysu-logo.png",
+    reflection:
+      "Fostered a culture of confident communication by mentoring speakers, organizing debating initiatives, and creating opportunities for students to develop their voices through meaningful competition and collaboration.",
+    contributions: ["Organized debating activities", "Mentored junior members", "Led event coordination", "Strengthened teamwork"],
+    skills: ["Leadership", "Public Speaking", "Event Management"],
   },
   {
-    icon: <FaTrophy />,
-    logo: "/achievements/logos/forman.png",
-    photo: "/achievements/photos/forman.jpg",
-    award: "Best Speaker",
-    competition: "18th Forman Bilingual Declamation Contest",
-    institution: "Forman Christian College",
-    year: "2024",
-    memory:
-      "An unforgettable experience that celebrated the power of language and meaningful expression. This achievement strengthened my ability to engage diverse audiences with confidence, authenticity, and purpose.",
+    role: "President",
+    society: "Bazm-e-Shahab",
+    category: "Literary Society",
+    org: "Government College University, Lahore",
+    date: "2023 – 2025",
+    logo: "/leadership/logos/bazm-e-shahab-logo.png",
+    reflection:
+      "Led literary initiatives that encouraged creativity, dialogue, and intellectual growth while guiding members through collaborative projects and impactful campus events.",
+    contributions: ["Managed society operations", "Organized literary events", "Led executive team", "Mentored members"],
+    skills: ["Strategic Leadership", "Communication", "Management"],
   },
   {
-    icon: <FaMedal />,
-    logo: "/achievements/logos/uvas.png",
-    photo: "/achievements/photos/uvas.jpg",
-    award: "2nd Best Speaker",
-    competition: "UVAS All Pakistan Debating Championship",
-    institution: "UVAS",
-    year: "2025",
-    memory:
-      "A milestone that reflected continuous growth and perseverance. Competing against accomplished speakers strengthened my analytical reasoning and inspired me to keep raising my own standards.",
+    role: "Vice President",
+    society: "Majlis Ameer Khusroo",
+    category: "Literary Society",
+    org: "Government College University, Lahore",
+    date: "2023 – 2025",
+    logo: "/leadership/logos/majlis-ameer-khusroo-logo.png",
+    reflection:
+      "Collaborated with executive members to strengthen literary engagement through impactful events and student-centered initiatives.",
+    contributions: ["Coordinated programs", "Supported executive planning", "Managed event logistics"],
+    skills: ["Leadership", "Collaboration", "Organization"],
   },
   {
-    icon: <FaMedal />,
-    logo: "/achievements/logos/iqbal-day.png",
-    photo: "/achievements/photos/iqbal-day.jpg",
-    award: "2nd Best Speaker",
-    competition: "Iqbal Day All Punjab Declamation Contest",
-    institution: "",
-    year: "2025",
-    memory:
-      "Inspired by the philosophy of Allama Muhammad Iqbal, this competition deepened my appreciation for purposeful communication and strengthened my ability to deliver ideas with conviction and lasting impact.",
+    role: "Assistant Secretary",
+    society: "IEEE Society",
+    category: "Technology Society",
+    org: "Government College University, Lahore",
+    date: "2023 – 2025",
+    logo: "/leadership/logos/ieee-logo.png",
+    reflection:
+      "Supported technical events, streamlined organizational activities, and helped create valuable professional learning opportunities for students.",
+    contributions: ["Assisted event planning", "Coordinated workshops", "Supported administration"],
+    skills: ["Technical Leadership", "Coordination", "Planning"],
   },
   {
-    icon: <FaMedal />,
-    logo: "/achievements/logos/markehaq.png",
-    photo: "/achievements/photos/markehaq.jpg",
-    award: "2nd Best Speaker",
-    competition: "Mark-e-Haq Interdepartmental Trilingual Debating Competition",
-    institution: "",
-    year: "2026",
-    memory:
-      "Competing across multiple languages demanded adaptability, confidence, and composure. This achievement reinforced the importance of connecting with diverse audiences while maintaining clarity and persuasive communication.",
+    role: "Associate Secretary",
+    society: "TAQS Quiz Society",
+    category: "Quiz & Knowledge Society",
+    org: "Government College University, Lahore",
+    date: "2023 – 2025",
+    logo: "/leadership/logos/taqs-logo.png",
+    reflection:
+      "Contributed to organizing knowledge-based competitions while promoting teamwork, discipline, and academic excellence.",
+    contributions: ["Organized quiz competitions", "Managed event operations", "Coordinated participants"],
+    skills: ["Organization", "Teamwork", "Communication"],
   },
   {
-    icon: <FaMedal />,
-    logo: "/achievements/logos/pwcs.png",
-    photo: "/achievements/photos/pwcs.jpg",
-    award: "2nd Best Speaker",
-    competition: "1st PWCS Debate Summit",
-    institution: "",
-    year: "2026",
-    memory:
-      "A proud milestone that reflected consistency, resilience, and the pursuit of excellence. Every debate became another opportunity to refine my communication, leadership, and professional confidence.",
+    role: "Member",
+    society: "Pioneers' Debating Society",
+    category: "Debating Society",
+    org: "University of the Punjab, Lahore",
+    date: "",
+    logo: "/leadership/logos/pioneers-logo.png",
+    reflection:
+      "Began my competitive debating journey by refining communication skills, embracing constructive feedback, and building the foundation for future leadership roles.",
+    contributions: ["Active participation", "Competitive debating", "Team collaboration"],
+    skills: ["Critical Thinking", "Public Speaking", "Confidence"],
   },
 ];
-
-const usePrefersReducedMotion = () => {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(mq.matches);
-    const handler = () => setReduced(mq.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-  return reduced;
-};
 
 const usePointerFine = () => {
   const [fine, setFine] = useState(false);
@@ -95,7 +89,19 @@ const usePointerFine = () => {
   return fine;
 };
 
-// ---------- Safe image ----------
+const usePrefersReducedMotion = () => {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setReduced(mq.matches);
+    const handler = () => setReduced(mq.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return reduced;
+};
+
+// ---------- Safe image (same as Achievements) ----------
 
 const SafeImage = ({ src, alt, className, style, fallback }) => {
   const [errored, setErrored] = useState(false);
@@ -112,31 +118,7 @@ const SafeImage = ({ src, alt, className, style, fallback }) => {
   );
 };
 
-// ---------- Section heading ----------
-// Matches the "Who is SAK?" heading treatment: same size, weight, and
-// solid-color accent (no gradient, no Orbitron, no glow). The former
-// separate "Every Achievement Has a Story" block is now folded into a
-// single bold, prominent subtitle directly under the heading.
-
-const GalleryHeading = () => (
-  <motion.div
-    initial={{ opacity: 0, y: -20 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.6 }}
-    className="text-center mb-16"
-  >
-    <h2 className="text-4xl md:text-6xl font-extrabold text-center text-white mb-4">
-      Achievements <span className="text-purple-500">Gallery</span>
-    </h2>
-    <p className="text-gray-300 font-semibold max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
-      Every stage became more than a competition. It became an opportunity to grow, lead, and
-      communicate with purpose, turning challenges into milestones of discipline and excellence.
-    </p>
-  </motion.div>
-);
-
-// ---------- Institution logo badge ----------
+// ---------- Logo badge (same as Achievements) ----------
 
 const LogoBadge = ({ src, icon, size = 48, active = false, hovered = false }) => {
   const [ripples, setRipples] = useState([]);
@@ -213,12 +195,58 @@ const LogoBadge = ({ src, icon, size = 48, active = false, hovered = false }) =>
   );
 };
 
-// ---------- Achievement card ----------
-// Static premium glow only (no infinite sweeping overlay). The only moving
-// light is the cursor-tracking specular highlight, which is intentional
-// and tied directly to mouse position.
+// ---------- Section heading ----------
+// Matches the "Who is SAK?" heading treatment: same size, weight, and
+// solid-color accent (no gradient, no Orbitron, no glow). The former
+// separate "Leadership Beyond Positions" block is folded into a single
+// bold, prominent subtitle directly under the heading.
 
-const AchievementCard = ({ item, index, onOpen, pointerFine, reducedMotion, isActive }) => {
+const GalleryHeading = () => (
+  <motion.div
+    initial={{ opacity: 0, y: -20 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.6 }}
+    className="text-center mb-16"
+  >
+    <h2 className="text-4xl md:text-6xl font-extrabold text-center text-white mb-4">
+      Leadership <span className="text-purple-500">Gallery</span>
+    </h2>
+    <p className="text-gray-300 font-semibold max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
+      Every role became an opportunity to lead with purpose, collaborate with diverse teams, and
+      build communities that encourage growth.
+    </p>
+  </motion.div>
+);
+
+const AmbientGlow = ({ variant = "section" }) => {
+  const isModal = variant === "modal";
+  return (
+    <motion.div
+      aria-hidden="true"
+      className="pointer-events-none absolute rounded-full"
+      style={{
+        width: isModal ? 360 : 480,
+        height: isModal ? 360 : 480,
+        top: isModal ? "10%" : "10%",
+        [isModal ? "left" : "right"]: isModal ? "20%" : "10%",
+        background: "radial-gradient(circle, rgba(168,85,247,0.2), transparent 70%)",
+        filter: "blur(90px)",
+        willChange: "transform",
+      }}
+      animate={{ x: [0, 30, 0], y: [0, 20, 0] }}
+      transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+    />
+  );
+};
+
+// ---------- Leadership card ----------
+// Same interaction system as Achievements: cursor-tracking specular light,
+// subtle 3D tilt, translateZ depth lift on active. Clicking opens the
+// full LeadershipCapsule modal (via onOpen, which captures this card's
+// exact position) instead of expanding an inline accordion.
+
+const LeadershipCard = ({ item, index, onOpen, pointerFine, reducedMotion, isActive }) => {
   const ref = useRef(null);
   const rotateX = useMotionValue(0);
   const rotateY = useMotionValue(0);
@@ -260,11 +288,6 @@ const AchievementCard = ({ item, index, onOpen, pointerFine, reducedMotion, isAc
   };
 
   const glowing = hovered || isActive;
-
-  const textVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-  };
 
   return (
     <motion.button
@@ -321,106 +344,39 @@ const AchievementCard = ({ item, index, onOpen, pointerFine, reducedMotion, isAc
         style={{ background: lightBackground }}
       />
 
-      <div className="relative mb-4" style={{ transform: "translateZ(24px)" }}>
-        <LogoBadge src={item.logo} icon={item.icon} size={48} active={isActive} hovered={hovered} />
+      <div className="relative flex items-start justify-between gap-3 mb-4" style={{ transform: "translateZ(20px)" }}>
+        <LogoBadge src={item.logo} icon={<FaCrown />} size={48} active={isActive} hovered={hovered} />
+        <span
+          className="px-3 py-1 rounded-full text-[10px] tracking-wider text-purple-300 border border-purple-500/30 bg-purple-500/10 whitespace-nowrap"
+          style={{ fontFamily: "Orbitron, sans-serif" }}
+        >
+          {item.date || "ONGOING"}
+        </span>
       </div>
 
-      <motion.p
-        variants={textVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.6 }}
-        transition={{ duration: 0.5, delay: index * 0.07 + 0.08 }}
-        className="relative text-purple-400 text-xs tracking-wide mb-1"
-        style={{ fontFamily: "Orbitron, sans-serif" }}
-      >
-        {item.year}
-      </motion.p>
+      <h3 className="relative text-white font-semibold text-lg mb-1" style={{ transform: "translateZ(16px)" }}>
+        {item.role}
+      </h3>
+      <p className="relative text-purple-400 text-sm font-medium mb-1">{item.society}</p>
+      <p className="relative text-gray-500 text-xs mb-1">{item.category}</p>
+      <p className="relative text-gray-500 text-xs mb-4">{item.org}</p>
 
-      <motion.h3
-        variants={textVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.6 }}
-        transition={{ duration: 0.5, delay: index * 0.07 + 0.13 }}
-        className="relative text-white font-semibold text-lg mb-1"
-      >
-        {item.award}
-      </motion.h3>
-
-      <motion.p
-        variants={textVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.6 }}
-        transition={{ duration: 0.5, delay: index * 0.07 + 0.18 }}
-        className="relative text-gray-400 text-sm mb-1"
-      >
-        {item.competition}
-      </motion.p>
-
-      {item.institution && (
-        <motion.p
-          variants={textVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.6 }}
-          transition={{ duration: 0.5, delay: index * 0.07 + 0.22 }}
-          className="relative text-gray-500 text-xs mb-4"
-        >
-          {item.institution}
-        </motion.p>
-      )}
-
-      <motion.div
-        variants={textVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.6 }}
-        transition={{ duration: 0.5, delay: index * 0.07 + 0.27 }}
-        className="relative flex items-center gap-2 text-purple-400 text-sm"
-      >
-        <span>Open Memory</span>
+      <div className="relative flex items-center gap-2 text-purple-400 text-sm">
+        <span>View Details</span>
         <motion.span animate={{ x: glowing ? 4 : 0 }} transition={{ duration: 0.2 }}>
           →
         </motion.span>
-      </motion.div>
+      </div>
     </motion.button>
   );
 };
 
-// ---------- Ambient background ----------
+// ---------- Leadership Capsule (popup) ----------
 
-const AuroraBackground = ({ variant = "section" }) => {
-  const isModal = variant === "modal";
-  return (
-    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      <motion.div
-        className="absolute rounded-full"
-        style={{
-          width: isModal ? 360 : 480,
-          height: isModal ? 360 : 480,
-          top: isModal ? "10%" : "20%",
-          left: isModal ? "20%" : "55%",
-          background: "radial-gradient(circle, rgba(168,85,247,0.22), transparent 70%)",
-          filter: "blur(80px)",
-          willChange: "transform",
-        }}
-        animate={{ x: [0, 30, 0], y: [0, 20, 0] }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-      />
-    </div>
-  );
-};
-
-// ---------- Memory Capsule (popup) ----------
-
-const MemoryCapsule = ({ item, origin, onClose }) => {
+const LeadershipCapsule = ({ item, origin, onClose }) => {
   const containerRef = useRef(null);
   const panelRef = useRef(null);
   const reducedMotion = usePrefersReducedMotion();
-  const isBest = item.award.toLowerCase().includes("best speaker") && !item.award.toLowerCase().includes("2nd");
-  const BadgeIcon = isBest ? FaTrophy : FaMedal;
 
   const getOriginTransform = () => {
     if (!origin || !panelRef.current) return null;
@@ -489,7 +445,7 @@ const MemoryCapsule = ({ item, origin, onClose }) => {
       <motion.div
         role="dialog"
         aria-modal="true"
-        aria-label={`${item.award} memory`}
+        aria-label={`${item.role} at ${item.society}`}
         onClick={(e) => e.stopPropagation()}
         initial={
           reducedMotion
@@ -527,7 +483,7 @@ const MemoryCapsule = ({ item, origin, onClose }) => {
         }}
         className="relative w-full border border-purple-500/30 overflow-hidden"
         style={{
-          maxWidth: 950,
+          maxWidth: 780,
           maxHeight: "90vh",
           overflowY: "auto",
           background: "rgba(10,10,16,0.88)",
@@ -537,11 +493,11 @@ const MemoryCapsule = ({ item, origin, onClose }) => {
           transformOrigin: "center center",
         }}
       >
-        <AuroraBackground variant="modal" />
+        <AmbientGlow variant="modal" />
 
         <button
           onClick={onClose}
-          aria-label="Close memory"
+          aria-label="Close details"
           className="absolute top-5 right-5 z-10 flex items-center justify-center w-10 h-10 rounded-full border border-white/15 bg-white/[0.05] backdrop-blur-md text-white hover:border-purple-400/60 hover:text-purple-300 transition-colors duration-200"
         >
           <FaTimes />
@@ -552,102 +508,86 @@ const MemoryCapsule = ({ item, origin, onClose }) => {
             initial={{ scale: 0.85, opacity: 0, y: 15 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15, type: "spring", stiffness: 110, damping: 16 }}
-            className="relative mx-auto mb-8"
-            style={{ width: "fit-content", maxWidth: "100%" }}
+            className="flex justify-center mb-6"
           >
-            <motion.div
-              aria-hidden="true"
-              animate={{ opacity: [0.3, 0.6, 0.3] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -inset-5 pointer-events-none rounded-2xl"
-              style={{ background: "radial-gradient(circle, rgba(168,85,247,0.35), transparent 70%)" }}
-            />
-            <SafeImage
-              src={item.photo}
-              alt={item.award}
-              className="relative block rounded-2xl border border-purple-400/30"
-              style={{
-                maxHeight: "55vh",
-                maxWidth: "100%",
-                width: "auto",
-                height: "auto",
-                boxShadow: "0 0 50px rgba(168,85,247,0.25)",
-              }}
-              fallback={
-                <div
-                  className="relative w-[300px] h-[300px] flex items-center justify-center text-6xl text-purple-300 bg-purple-500/10 rounded-2xl border border-purple-400/30"
-                  style={{ boxShadow: "0 0 50px rgba(168,85,247,0.25)" }}
-                >
-                  {item.icon}
-                </div>
-              }
-            />
-            <motion.div
-              initial={{ scale: 0, rotate: -20 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ delay: 0.5, type: "spring", stiffness: 200, damping: 14 }}
-              className="absolute -bottom-4 -right-4 w-14 h-14 rounded-full flex items-center justify-center text-2xl text-white border-2 border-[#0a0a10]"
-              style={{
-                background: "linear-gradient(135deg, #c084fc, #7c3aed)",
-                boxShadow: "0 0 20px rgba(168,85,247,0.6)",
-              }}
-            >
-              <BadgeIcon />
-            </motion.div>
+            <LogoBadge src={item.logo} icon={<FaCrown />} size={88} active />
           </motion.div>
-
-          {item.logo && (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.4 }}
-              className="flex items-center justify-center gap-3 mb-6"
-            >
-              <LogoBadge src={item.logo} icon={item.icon} size={40} />
-              {item.institution && (
-                <span className="text-gray-400 text-xs">{item.institution}</span>
-              )}
-            </motion.div>
-          )}
 
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.4 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
             className="text-purple-400 text-xs tracking-widest text-center mb-2"
             style={{ fontFamily: "Orbitron, sans-serif" }}
           >
-            {item.year}
+            {item.date || "ONGOING"}
           </motion.p>
 
           <motion.h3
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.4 }}
+            transition={{ delay: 0.4, duration: 0.4 }}
             className="text-white text-2xl md:text-3xl font-bold text-center mb-2"
             style={{ fontFamily: "Orbitron, sans-serif" }}
           >
-            {item.award}
+            {item.role}
           </motion.h3>
 
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.4 }}
-            className="text-purple-300 text-center text-sm md:text-base mb-8"
+            transition={{ delay: 0.5, duration: 0.4 }}
+            className="text-purple-300 text-center text-sm md:text-base mb-1"
           >
-            {item.competition}
+            {item.society}
+          </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55, duration: 0.4 }}
+            className="text-gray-500 text-center text-xs mb-8"
+          >
+            {item.category} · {item.org}
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 0.5 }}
-            className="max-w-xl mx-auto text-center"
+            transition={{ delay: 0.65, duration: 0.5 }}
+            className="max-w-xl mx-auto"
           >
-            <p className="text-gray-400 text-sm md:text-base" style={{ lineHeight: 1.8 }}>
-              {item.memory}
+            <p className="text-purple-300 text-xs tracking-wide mb-2 text-center" style={{ fontFamily: "Orbitron, sans-serif" }}>
+              LEADERSHIP REFLECTION
             </p>
+            <p className="text-gray-400 text-sm text-center mb-8" style={{ lineHeight: 1.8 }}>
+              {item.reflection}
+            </p>
+
+            <p className="text-purple-300 text-xs tracking-wide mb-3 text-center" style={{ fontFamily: "Orbitron, sans-serif" }}>
+              KEY CONTRIBUTIONS
+            </p>
+            <ul className="mb-8 space-y-2 flex flex-col items-center">
+              {item.contributions.map((c) => (
+                <li key={c} className="text-gray-400 text-sm flex items-start gap-2 max-w-md">
+                  <span className="text-purple-400 mt-1">•</span>
+                  <span>{c}</span>
+                </li>
+              ))}
+            </ul>
+
+            <p className="text-purple-300 text-xs tracking-wide mb-3 text-center" style={{ fontFamily: "Orbitron, sans-serif" }}>
+              SKILLS DEVELOPED
+            </p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {item.skills.map((s) => (
+                <span
+                  key={s}
+                  className="px-3 py-1 rounded-full text-xs text-purple-200 border border-purple-500/30 bg-purple-500/10"
+                >
+                  {s}
+                </span>
+              ))}
+            </div>
           </motion.div>
 
           <motion.button
@@ -657,7 +597,7 @@ const MemoryCapsule = ({ item, origin, onClose }) => {
             onClick={onClose}
             className="relative block mx-auto mt-10 px-6 py-2.5 rounded-full border border-purple-500/40 text-purple-300 text-sm hover:bg-purple-500/10 hover:border-purple-400/60 transition-colors duration-200"
           >
-            Close Memory
+            Close
           </motion.button>
         </div>
       </motion.div>
@@ -665,9 +605,7 @@ const MemoryCapsule = ({ item, origin, onClose }) => {
   );
 };
 
-// ---------- Main section ----------
-
-const Achievements = () => {
+const LeadershipGallery = () => {
   const [openIndex, setOpenIndex] = useState(null);
   const [activeIndex, setActiveIndex] = useState(null);
   const [origin, setOrigin] = useState(null);
@@ -685,8 +623,8 @@ const Achievements = () => {
   const handleClose = useCallback(() => setOpenIndex(null), []);
 
   return (
-    <section id="achievements" className="relative py-24 px-6 md:px-16 overflow-hidden">
-      <AuroraBackground variant="section" />
+    <section id="leadership" className="relative py-24 px-6 md:px-16 overflow-hidden">
+      <AmbientGlow variant="section" />
 
       <GalleryHeading />
 
@@ -694,8 +632,8 @@ const Achievements = () => {
         className="relative grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto"
         style={{ perspective: 1200 }}
       >
-        {achievements.map((item, i) => (
-          <AchievementCard
+        {positions.map((item, i) => (
+          <LeadershipCard
             key={i}
             item={item}
             index={i}
@@ -715,17 +653,17 @@ const Achievements = () => {
         className="text-center text-gray-400 text-sm md:text-base mt-20 max-w-2xl mx-auto italic"
         style={{ letterSpacing: "0.02em", textShadow: "0 0 12px rgba(168,85,247,0.25)" }}
       >
-        "Every achievement marks a milestone, but the true reward lies in the growth, resilience,
-        and purpose discovered throughout the journey."
+        "True leadership is not defined by the position we hold, but by the people we inspire, the
+        opportunities we create, and the legacy we leave behind."
       </motion.p>
 
       <AnimatePresence>
         {openIndex !== null && (
-          <MemoryCapsule item={achievements[openIndex]} origin={origin} onClose={handleClose} />
+          <LeadershipCapsule item={positions[openIndex]} origin={origin} onClose={handleClose} />
         )}
       </AnimatePresence>
     </section>
   );
 };
 
-export default Achievements;
+export default LeadershipGallery;

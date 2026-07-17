@@ -4,6 +4,93 @@ import { FaWindows, FaLinux, FaSlack } from "react-icons/fa";
 import { VscVscode } from "react-icons/vsc";
 import { SiVercel } from "react-icons/si";
 
+// ---------- Dominant heading ----------
+// Matches the "Who is SAK?" font treatment (extrabold, solid purple accent,
+// no gradient/Orbitron), but stands apart from the plainer fade-in section
+// headings elsewhere via two things: a letter-by-letter reveal on scroll-in,
+// and a subtle cursor-reactive 3D tilt + spotlight while hovering it.
+
+const DominantHeading = ({ prefix, accent, subtitle }) => {
+  const ref = useRef(null);
+  const rotateX = useMotionValue(0);
+  const rotateY = useMotionValue(0);
+  const springRotateX = useSpring(rotateX, { stiffness: 150, damping: 20 });
+  const springRotateY = useSpring(rotateY, { stiffness: 150, damping: 20 });
+  const [glowPos, setGlowPos] = useState({ x: 50, y: 50 });
+  const [hovered, setHovered] = useState(false);
+
+  const fullText = `${prefix} ${accent}`;
+  const letters = fullText.split("");
+
+  const handleMouseMove = (e) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width;
+    const py = (e.clientY - rect.top) / rect.height;
+    rotateY.set((px - 0.5) * 6);
+    rotateX.set(-(py - 0.5) * 6);
+    setGlowPos({ x: px * 100, y: py * 100 });
+  };
+
+  const handleLeave = () => {
+    rotateX.set(0);
+    rotateY.set(0);
+    setHovered(false);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={handleLeave}
+      initial={{ opacity: 0, y: -16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6 }}
+      className="relative text-center mb-4"
+      style={{ perspective: 700 }}
+    >
+      <motion.div
+        aria-hidden="true"
+        animate={{ opacity: hovered ? 1 : 0 }}
+        transition={{ duration: 0.3 }}
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          background: `radial-gradient(320px circle at ${glowPos.x}% ${glowPos.y}%, rgba(168,85,247,0.16), transparent 70%)`,
+        }}
+      />
+
+      <motion.h2
+        style={{
+          rotateX: springRotateX,
+          rotateY: springRotateY,
+          transformStyle: "preserve-3d",
+        }}
+        className="inline-block text-4xl md:text-6xl font-extrabold text-white"
+      >
+        {letters.map((char, i) => {
+          const isAccent = i >= prefix.length + 1;
+          return (
+            <motion.span
+              key={i}
+              initial={{ opacity: 0, y: 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.025, ease: [0.22, 1, 0.36, 1] }}
+              className={`inline-block ${isAccent ? "text-purple-500" : "text-white"}`}
+            >
+              {char === " " ? "\u00A0" : char}
+            </motion.span>
+          );
+        })}
+      </motion.h2>
+
+      <p className="text-gray-400 mt-3 max-w-2xl mx-auto">{subtitle}</p>
+    </motion.div>
+  );
+};
+
 const tools = [
   { icon: <FaWindows />, name: "Windows", color: "#00A4EF" },
   { icon: <FaLinux />, name: "Linux", color: "#f5c518" },
@@ -55,7 +142,7 @@ const ToolCard = ({ tool, index }) => {
           borderColor: hovered ? `${tool.color}80` : "rgba(168,85,247,0.15)",
         }}
         transition={{ type: "spring", stiffness: 260, damping: 22 }}
-        className="relative flex flex-col items-center justify-center gap-4 border rounded-2xl py-8 px-4 backdrop-blur-sm cursor-pointer overflow-hidden bg-white/[0.02]"
+        className="relative flex flex-col items-center justify-center gap-4 border rounded-2xl py-8 px-4 cursor-pointer overflow-hidden bg-transparent"
       >
         <motion.div
           className="absolute inset-0 pointer-events-none"
@@ -117,18 +204,11 @@ const ToolCard = ({ tool, index }) => {
 const ToolStack = () => {
   return (
     <section id="tool-stack" className="relative py-24 px-6 md:px-16">
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-4"
-      >
-        <h2 className="text-3xl md:text-4xl font-bold text-white">
-          My <span className="text-purple-500">Tool Stack</span>
-        </h2>
-        <p className="text-gray-400 mt-3">The tools and platforms I rely on day to day.</p>
-      </motion.div>
+      <DominantHeading
+        prefix="My"
+        accent="Tool Stack"
+        subtitle="The daily-driver tools and platforms behind a clean, efficient, and reliable development workflow."
+      />
 
       <div className="flex flex-wrap justify-center gap-5 max-w-4xl mx-auto mt-16">
         {tools.map((tool, i) => (

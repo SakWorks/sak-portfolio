@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaBars, FaTimes } from "react-icons/fa";
+import { FaBars, FaTimes, FaFeatherAlt } from "react-icons/fa";
 
 const navLinks = [
-  { name: "Home", href: "#" },
+  { name: "Home", href: "#home" },
   { name: "About", href: "#about" },
   { name: "Achievements", href: "#achievements" },
   { name: "Experience", href: "#experience" },
@@ -16,14 +16,14 @@ const navLinks = [
 const Logo = () => {
   return (
     <motion.a
-      href="#"
-      whileHover={{ scale: 1.03 }}
-      whileTap={{ scale: 0.98 }}
-      className="group relative inline-flex items-center"
+      href="#home"
+      whileHover={{ scale: 1.04 }}
+      whileTap={{ scale: 0.97 }}
+      className="group relative inline-flex items-center shrink-0"
       aria-label="SAK Home"
     >
       <span
-        className="relative z-10 text-[34px] font-semibold leading-none text-white"
+        className="relative z-10 text-[22px] md:text-[24px] font-semibold leading-none text-white"
         style={{
           fontFamily: "Orbitron, sans-serif",
           letterSpacing: "0.11em",
@@ -31,20 +31,7 @@ const Logo = () => {
       >
         SAK
       </span>
-
-      <motion.span
-        className="absolute -bottom-2 left-0 h-[1px] w-full origin-center bg-white/80"
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: [0, 1, 0] }}
-        transition={{
-          duration: 3,
-          repeat: Infinity,
-          repeatDelay: 1.5,
-          ease: "easeInOut",
-        }}
-      />
-
-      <span className="absolute -bottom-2 left-0 h-[1px] w-full scale-x-0 bg-purple-400 transition-transform duration-300 group-hover:scale-x-100" />
+      <span className="absolute -bottom-1.5 left-0 h-[1px] w-full scale-x-0 bg-gradient-to-r from-purple-400 to-fuchsia-400 transition-transform duration-300 group-hover:scale-x-100" />
     </motion.a>
   );
 };
@@ -52,52 +39,99 @@ const Logo = () => {
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [active, setActive] = useState("Home");
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-
+    const handleScroll = () => setScrolled(window.scrollY > 20);
     handleScroll();
-    window.addEventListener("scroll", handleScroll);
-
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const ids = navLinks.map((l) => l.href.replace("#", "")).filter(Boolean);
+    const elements = ids
+      .map((id) => document.getElementById(id))
+      .filter(Boolean);
+
+    if (!elements.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const match = navLinks.find(
+              (l) => l.href.replace("#", "") === entry.target.id
+            );
+            if (match) setActive(match.name);
+          }
+        });
+      },
+      { rootMargin: "-45% 0px -50% 0px", threshold: 0 }
+    );
+
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <nav
-      className={`fixed left-0 top-0 z-50 w-full transition-all duration-300 ${
-        scrolled
-          ? "border-b border-white/10 bg-black/80 py-3 backdrop-blur-xl"
-          : "bg-black/10 py-5 backdrop-blur-sm"
-      }`}
-    >
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-6 md:px-10">
+    <header className="fixed left-0 top-0 z-50 w-full px-3 pt-3 md:px-6 md:pt-5">
+      <nav
+        className={`mx-auto flex w-full max-w-6xl items-center justify-between gap-3 rounded-full border transition-all duration-500 ${
+          scrolled
+            ? "border-white/20 bg-black/75 shadow-[0_8px_40px_rgba(168,85,247,0.22)]"
+            : "border-white/15 bg-black/45 shadow-[0_8px_40px_rgba(168,85,247,0.16)]"
+        } px-4 py-2.5 backdrop-blur-2xl md:px-6 md:py-3`}
+      >
         <Logo />
 
-        <div className="hidden items-center gap-7 md:flex">
-          {navLinks.map((link) => (
-            <motion.a
-              key={link.name}
-              href={link.href}
-              whileHover={{ y: -2 }}
-              className="relative text-sm font-medium text-gray-300 transition-colors duration-300 hover:text-white"
-            >
-              {link.name}
-              <span className="absolute -bottom-2 left-0 h-[1px] w-full scale-x-0 bg-purple-400 transition-transform duration-300 hover:scale-x-100" />
-            </motion.a>
-          ))}
+        <div className="hidden min-w-0 items-center gap-1 overflow-x-auto lg:flex [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {navLinks.map((link) => {
+            const isActive = active === link.name;
+            return (
+              <a
+                key={link.name}
+                href={link.href}
+                className={`relative shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-[13px] font-medium transition-all duration-300 ${
+                  isActive
+                    ? "bg-purple-500/15 text-purple-300"
+                    : "text-white/90 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                {link.name}
+                {isActive && (
+                  <motion.span
+                    layoutId="nav-active-dot"
+                    className="absolute -bottom-0.5 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-purple-400"
+                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                  />
+                )}
+              </a>
+            );
+          })}
         </div>
 
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="flex h-11 w-11 items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-xl text-white backdrop-blur-xl md:hidden"
-          aria-label="Toggle menu"
-          aria-expanded={menuOpen}
-        >
-          {menuOpen ? <FaTimes /> : <FaBars />}
-        </button>
-      </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <motion.a
+            href="#developer-note"
+            whileHover={{ scale: 1.06 }}
+            whileTap={{ scale: 0.95 }}
+            aria-label="Read the developer's note"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-purple-400/40 bg-purple-500/10 text-purple-300 transition-colors duration-300 hover:border-purple-300/70 hover:bg-purple-500/20 hover:text-white"
+          >
+            <FaFeatherAlt className="text-[14px]" />
+          </motion.a>
+
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] text-lg text-white backdrop-blur-xl lg:hidden"
+            aria-label="Toggle menu"
+            aria-expanded={menuOpen}
+          >
+            {menuOpen ? <FaTimes /> : <FaBars />}
+          </button>
+        </div>
+      </nav>
 
       <AnimatePresence>
         {menuOpen && (
@@ -106,16 +140,20 @@ const Navbar = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -12 }}
             transition={{ duration: 0.25 }}
-            className="mx-6 mt-4 overflow-hidden rounded-md border border-white/10 bg-black/95 backdrop-blur-xl md:hidden"
+            className="mx-auto mt-3 max-w-6xl overflow-hidden rounded-3xl border border-white/10 bg-black/90 backdrop-blur-2xl lg:hidden"
           >
-            <div className="flex flex-col gap-2 p-4">
+            <div className="flex flex-col gap-1 p-3">
               {navLinks.map((link) => (
                 <motion.a
                   key={link.name}
                   href={link.href}
                   onClick={() => setMenuOpen(false)}
                   whileTap={{ scale: 0.98 }}
-                  className="rounded-md px-4 py-3 text-center text-gray-300 transition-colors duration-300 hover:bg-white/10 hover:text-white"
+                  className={`rounded-full px-4 py-3 text-center transition-colors duration-300 ${
+                    active === link.name
+                      ? "bg-purple-500/15 text-purple-300"
+                      : "text-white/90 hover:bg-white/5 hover:text-white"
+                  }`}
                 >
                   {link.name}
                 </motion.a>
@@ -124,7 +162,7 @@ const Navbar = () => {
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
+    </header>
   );
 };
 
