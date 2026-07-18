@@ -99,15 +99,21 @@ const usePointerFine = () => {
 
 const SafeImage = ({ src, alt, className, style, fallback }) => {
   const [errored, setErrored] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   if (!src || errored) return fallback;
   return (
     <img
       src={src}
       alt={alt}
       loading="lazy"
+      onLoad={() => setLoaded(true)}
       onError={() => setErrored(true)}
       className={className}
-      style={style}
+      style={{
+        ...style,
+        opacity: loaded ? 1 : 0,
+        transition: "opacity 0.5s ease",
+      }}
     />
   );
 };
@@ -130,7 +136,7 @@ const GalleryHeading = () => (
       Achievements <span className="text-purple-500">Gallery</span>
     </h2>
     <p className="text-gray-300 font-semibold max-w-2xl mx-auto text-sm md:text-base leading-relaxed">
-      Every stage became more than a competition. It became an opportunity to grow, lead, and
+      Every stage became more than a competition — it became an opportunity to grow, lead, and
       communicate with purpose, turning challenges into milestones of discipline and excellence.
     </p>
   </motion.div>
@@ -521,15 +527,11 @@ const MemoryCapsule = ({ item, origin, onClose }) => {
             : { opacity: 0, scale: 0.92, y: 10 }
         }
         transition={{ type: "spring", stiffness: 260, damping: 28, mass: 0.9 }}
-        ref={(node) => {
-          panelRef.current = node;
-          containerRef.current = node;
-        }}
+        ref={panelRef}
         className="relative w-full border border-purple-500/30 overflow-hidden"
         style={{
           maxWidth: 950,
           maxHeight: "90vh",
-          overflowY: "auto",
           background: "rgba(10,10,16,0.88)",
           backdropFilter: "blur(28px)",
           WebkitBackdropFilter: "blur(28px)",
@@ -537,17 +539,44 @@ const MemoryCapsule = ({ item, origin, onClose }) => {
           transformOrigin: "center center",
         }}
       >
-        <AuroraBackground variant="modal" />
-
-        <button
-          onClick={onClose}
-          aria-label="Close memory"
-          className="absolute top-5 right-5 z-10 flex items-center justify-center w-10 h-10 rounded-full border border-white/15 bg-white/[0.05] backdrop-blur-md text-white hover:border-purple-400/60 hover:text-purple-300 transition-colors duration-200"
+        {/* Plain (non-animated) scroll container. Keeping this separate
+            from the motion.div above is the fix for trackpad/wheel scroll
+            not working: a single element that's both being transform-
+            animated (scaleX/scaleY/x/y here) AND is the scrollable
+            overflow container gets its wheel/trackpad input mishandled by
+            some browsers during and after the transform. Splitting the
+            "animate" job and the "scroll" job onto two different elements
+            avoids that entirely. */}
+        <div
+          ref={containerRef}
+          className="relative w-full overflow-y-auto overscroll-contain"
+          style={{
+            maxHeight: "90vh",
+            // Fixes a known mobile-browser bug: a scrollable element whose
+            // ancestor has an active CSS transform (Framer Motion's
+            // motion.div always keeps one applied, even at rest — that's
+            // the outer panel here) can get broken or one-directional
+            // touch scrolling, especially on iOS Safari and in-app
+            // webviews (Instagram/Snapchat/etc). These two properties
+            // explicitly tell the browser "this element owns vertical
+            // touch-panning and should use native momentum scrolling",
+            // which routes around the bug instead of relying on default
+            // touch-scroll inference that transforms can confuse.
+            WebkitOverflowScrolling: "touch",
+            touchAction: "pan-y",
+          }}
         >
-          <FaTimes />
-        </button>
+          <AuroraBackground variant="modal" />
 
-        <div className="relative p-8 md:p-12">
+          <button
+            onClick={onClose}
+            aria-label="Close memory"
+            className="absolute top-5 right-5 z-10 flex items-center justify-center w-10 h-10 rounded-full border border-white/15 bg-white/[0.05] backdrop-blur-md text-white hover:border-purple-400/60 hover:text-purple-300 transition-colors duration-200"
+          >
+            <FaTimes />
+          </button>
+
+          <div className="relative p-8 md:p-12">
           <motion.div
             initial={{ scale: 0.85, opacity: 0, y: 15 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -659,6 +688,7 @@ const MemoryCapsule = ({ item, origin, onClose }) => {
           >
             Close Memory
           </motion.button>
+          </div>
         </div>
       </motion.div>
     </motion.div>

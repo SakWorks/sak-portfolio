@@ -22,7 +22,7 @@ import Footer from "./components/Footer";
 
 function App() {
   return (
-    <div className="relative min-h-screen bg-black overflow-hidden">
+    <div className="relative min-h-screen bg-black">
       <SmoothScroll />
       <LoadingScreen />
       <StarsBackground />
