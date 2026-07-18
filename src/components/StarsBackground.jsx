@@ -4,6 +4,11 @@ import { Stars } from "@react-three/drei";
 import * as THREE from "three";
 
 // ---------- Adaptive quality ----------
+// Only affects render RESOLUTION (dpr) now, never which visual elements
+// exist. Star counts, nebula clouds, distant galaxies, and the shooting
+// star all render identically on every device - this hook no longer
+// strips anything, it just avoids over-rendering pixels on lower-power
+// GPUs.
 
 const useDeviceTier = () => {
   const [tier, setTier] = useState("high");
@@ -77,12 +82,13 @@ const DistantGalaxy = ({ position, color, size, speed }) => {
 };
 
 // ---------- Star layers with real depth-based parallax ----------
+// Same counts on every device now - the visual is identical everywhere.
 
-const StarLayers = ({ mouseRef, tier }) => {
+const StarLayers = ({ mouseRef }) => {
   const near = useRef();
   const mid = useRef();
   const far = useRef();
-  const counts = tier === "low" ? [1200, 900, 600] : [3000, 2200, 1500];
+  const counts = [3000, 2200, 1500];
 
   useFrame((_, delta) => {
     if (near.current) {
@@ -109,7 +115,7 @@ const StarLayers = ({ mouseRef, tier }) => {
   );
 };
 
-// ---------- Occasional shooting star (kept from your version, lightly cleaned) ----------
+// ---------- Occasional shooting star ----------
 
 const ShootingStar = () => {
   const ref = useRef();
@@ -172,7 +178,7 @@ const ShootingStar = () => {
 
 // ---------- Scene ----------
 
-const Scene = ({ tier }) => {
+const Scene = () => {
   const mouse = useRef({ x: 0, y: 0 });
   const { camera } = useThree();
   const targetRotation = useRef({ x: 0, y: 0 });
@@ -183,14 +189,15 @@ const Scene = ({ tier }) => {
       mouse.current.y = (clientY / window.innerHeight - 0.5) * 2;
     };
     const onMouseMove = (e) => handleMove(e.clientX, e.clientY);
-    const onTouchMove = (e) => {
-      if (e.touches[0]) handleMove(e.touches[0].clientX, e.touches[0].clientY);
-    };
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("touchmove", onTouchMove);
+    // Touch move is intentionally NOT used to drive the parallax here -
+    // reading touchmove for camera parallax is exactly what tempts you
+    // to preventDefault() it later, which is the other common way this
+    // kind of background ends up blocking page scroll on mobile. Mouse
+    // parallax already covers desktop; mobile still gets the ambient
+    // rotation/animation without needing finger-tracking.
+    window.addEventListener("mousemove", onMouseMove, { passive: true });
     return () => {
       window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("touchmove", onTouchMove);
     };
   }, []);
 
@@ -207,14 +214,10 @@ const Scene = ({ tier }) => {
       <fog attach="fog" args={["#050816", 40, 150]} />
       <ambientLight intensity={0.3} />
       <pointLight position={[0, 0, 20]} intensity={0.4} color="#a855f7" />
-      <StarLayers mouseRef={mouse} tier={tier} />
+      <StarLayers mouseRef={mouse} />
       <Nebula mouseRef={mouse} />
-      {tier === "high" && (
-        <>
-          <DistantGalaxy position={[-50, 30, -120]} color="#3B82F6" size={25} speed={0.008} />
-          <DistantGalaxy position={[55, -35, -130]} color="#E879F9" size={20} speed={0.01} />
-        </>
-      )}
+      <DistantGalaxy position={[-50, 30, -120]} color="#3B82F6" size={25} speed={0.008} />
+      <DistantGalaxy position={[55, -35, -130]} color="#E879F9" size={20} speed={0.01} />
       <ShootingStar />
     </>
   );
@@ -240,14 +243,28 @@ const StarsBackground = () => {
         zIndex: 0,
         background: "#050816",
         pointerEvents: "none",
+        touchAction: "pan-y",
       }}
     >
       <Canvas
         camera={{ position: [0, 0, 30], fov: 60 }}
-        dpr={[1, tier === "low" ? 1.25 : 1.5]}
+        dpr={[1, 2]}
         gl={{ antialias: true, alpha: false }}
+        // These two lines are the actual scroll fix: R3F applies this
+        // style directly to the <canvas> DOM element it creates (a
+        // separate node from the wrapping div above), so without this,
+        // the canvas itself has no explicit touch-action - meaning a
+        // finger drag on it can be captured as a gesture instead of
+        // being passed through as a normal page scroll.
+        style={{ pointerEvents: "none", touchAction: "pan-y" }}
+        // Disables R3F's internal pointer/touch event manager entirely.
+        // This canvas has no clickable/hoverable 3D objects (no
+        // raycasting needed for a pure background), so there's no
+        // reason for it to listen for pointer events at all - removing
+        // the listener is more reliable than only styling around it.
+        events={() => ({ enabled: false, priority: 0 })}
       >
-        <Scene tier={tier} />
+        <Scene />
       </Canvas>
     </div>
   );
