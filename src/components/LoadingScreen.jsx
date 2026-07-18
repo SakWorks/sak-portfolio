@@ -11,7 +11,6 @@ const LoadingScreen = () => {
   const startTime = useRef(Date.now());
 
   useEffect(() => {
-    document.body.style.overflow = "hidden";
     startTime.current = Date.now();
 
     const interval = setInterval(() => {
@@ -26,13 +25,11 @@ const LoadingScreen = () => {
     // hard safety fallback: force-reveal the page no matter what
     const fallback = setTimeout(() => {
       setLoading(false);
-      document.body.style.overflow = "";
     }, DURATION + 2000);
 
     return () => {
       clearInterval(interval);
       clearTimeout(fallback);
-      document.body.style.overflow = "";
     };
   }, []);
 
@@ -41,7 +38,6 @@ const LoadingScreen = () => {
       setComplete(true);
       const exitTimer = setTimeout(() => {
         setLoading(false);
-        document.body.style.overflow = "";
       }, 800);
       return () => clearTimeout(exitTimer);
     }

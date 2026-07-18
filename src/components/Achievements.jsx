@@ -464,11 +464,32 @@ const MemoryCapsule = ({ item, origin, onClose }) => {
     };
     document.addEventListener("keydown", handleKey);
     const t = setTimeout(() => containerRef.current?.querySelector("button")?.focus(), 350);
-    document.body.style.overflow = "hidden";
+
+    // `overflow: hidden` on body does NOT reliably block touch-driven
+    // scrolling on iOS Safari and several mobile browsers/webviews — the
+    // page behind the modal can still be scrolled by touch even with it
+    // set, which is exactly the "scrolling the image scrolls the page
+    // behind it instead" bug. Pinning the body in place with
+    // `position: fixed` (and restoring the exact scroll offset on close)
+    // is the technique that actually prevents background scroll on every
+    // platform, including mobile.
+    const scrollY = window.scrollY;
+    const { body } = document;
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+
     return () => {
       document.removeEventListener("keydown", handleKey);
       clearTimeout(t);
-      document.body.style.overflow = "";
+      body.style.position = "";
+      body.style.top = "";
+      body.style.left = "";
+      body.style.right = "";
+      body.style.width = "";
+      window.scrollTo(0, scrollY);
     };
   }, [onClose]);
 
@@ -549,6 +570,7 @@ const MemoryCapsule = ({ item, origin, onClose }) => {
             avoids that entirely. */}
         <div
           ref={containerRef}
+          data-lenis-prevent
           className="relative w-full overflow-y-auto overscroll-contain"
           style={{
             maxHeight: "90vh",
