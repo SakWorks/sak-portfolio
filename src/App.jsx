@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { AnimatePresence } from "framer-motion";
 
 import SmoothScroll from "./components/SmoothScroll";
 import Navbar from "./components/Navbar";
@@ -21,12 +20,20 @@ import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 
 function App() {
+  const [desktop, setDesktop] = useState(false);
+
+  useEffect(() => {
+    setDesktop(window.matchMedia("(pointer: fine)").matches);
+  }, []);
+
   return (
     <div className="relative min-h-screen bg-black">
       <SmoothScroll />
       <LoadingScreen />
       <StarsBackground />
-      <CustomCursor />
+
+      {desktop && <CustomCursor />}
+
       <Navbar />
       <Hero />
       <About />

@@ -1,6 +1,6 @@
 import { useRef, useMemo, useEffect, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Stars } from "@react-three/drei";
+import { Stars, Preload } from "@react-three/drei";
 import * as THREE from "three";
 
 // ---------- Adaptive quality ----------
@@ -42,6 +42,12 @@ const NebulaCloud = ({ color, position, scale, speed, mouseRef }) => {
   const ref = useRef();
   const texture = useGradientTexture(color);
 
+  useEffect(() => {
+    return () => {
+      texture.dispose();
+    };
+  }, [texture]);
+
   useFrame((state) => {
     if (!ref.current) return;
     const t = state.clock.elapsedTime * speed;
@@ -71,6 +77,13 @@ const Nebula = ({ mouseRef }) => (
 const DistantGalaxy = ({ position, color, size, speed }) => {
   const ref = useRef();
   const texture = useGradientTexture(color);
+
+  useEffect(() => {
+    return () => {
+      texture.dispose();
+    };
+  }, [texture]);
+
   useFrame((state) => {
     if (ref.current) ref.current.material.rotation = state.clock.elapsedTime * speed;
   });
@@ -92,12 +105,12 @@ const StarLayers = ({ mouseRef }) => {
 
   useFrame((_, delta) => {
     if (near.current) {
-      near.current.rotation.y += delta * 0.012;
+     near.current.rotation.y += delta * 0.009;
       near.current.rotation.x = THREE.MathUtils.lerp(near.current.rotation.x, mouseRef.current.y * 0.05, 0.03);
       near.current.rotation.y += mouseRef.current.x * 0.0006;
     }
-    if (mid.current) mid.current.rotation.y += delta * 0.006;
-    if (far.current) far.current.rotation.y -= delta * 0.003;
+    if (mid.current) mid.current.rotation.y += delta * 0.0045;
+    if (far.current) far.current.rotation.y -= delta * 0.002;
   });
 
   return (
@@ -201,11 +214,22 @@ const Scene = () => {
     };
   }, []);
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     targetRotation.current.x = THREE.MathUtils.lerp(targetRotation.current.x, mouse.current.y * 0.08, 0.03);
     targetRotation.current.y = THREE.MathUtils.lerp(targetRotation.current.y, mouse.current.x * 0.12, 0.03);
-    camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetRotation.current.y * 3, 0.05);
-    camera.position.y = THREE.MathUtils.lerp(camera.position.y, -targetRotation.current.x * 3, 0.05);
+    camera.position.x = THREE.MathUtils.damp(
+  camera.position.x,
+  targetRotation.current.y * 3,
+  5,
+  delta
+);
+
+camera.position.y = THREE.MathUtils.damp(
+  camera.position.y,
+  -targetRotation.current.x * 3,
+  5,
+  delta
+);
     camera.lookAt(0, 0, 0);
   });
 
@@ -247,25 +271,28 @@ const StarsBackground = () => {
       }}
     >
       <Canvas
-        camera={{ position: [0, 0, 30], fov: 60 }}
-        dpr={[1, 2]}
-        gl={{ antialias: true, alpha: false }}
-        // These two lines are the actual scroll fix: R3F applies this
-        // style directly to the <canvas> DOM element it creates (a
-        // separate node from the wrapping div above), so without this,
-        // the canvas itself has no explicit touch-action - meaning a
-        // finger drag on it can be captured as a gesture instead of
-        // being passed through as a normal page scroll.
-        style={{ pointerEvents: "none", touchAction: "pan-y" }}
-        // Disables R3F's internal pointer/touch event manager entirely.
-        // This canvas has no clickable/hoverable 3D objects (no
-        // raycasting needed for a pure background), so there's no
-        // reason for it to listen for pointer events at all - removing
-        // the listener is more reliable than only styling around it.
-        events={() => ({ enabled: false, priority: 0 })}
-      >
-        <Scene />
-      </Canvas>
+  camera={{ position: [0, 0, 30], fov: 60 }}
+  dpr={[1, window.devicePixelRatio > 2 ? 2 : window.devicePixelRatio]}
+  frameloop="always"
+  gl={{
+    antialias: true,
+    alpha: false,
+    powerPreference: "high-performance",
+    stencil: false,
+    depth: true,
+    preserveDrawingBuffer: false,
+  }}
+  style={{
+    pointerEvents: "none",
+    touchAction: "pan-y",
+    position: "absolute",
+    inset: 0,
+  }}
+  events={() => ({ enabled: false, priority: 0 })}
+>
+  <Scene />
+  <Preload all />
+</Canvas>
     </div>
   );
 };

@@ -1,64 +1,97 @@
 @import "tailwindcss";
 
+/* =========================
+   Global
+========================= */
+
 html {
   scroll-behavior: auto;
   scroll-padding-top: 80px;
-  /* Prevents the whole page from ever scrolling sideways by a few
-     stray pixels - a common cause of janky "bounce back" scrolling on
-     mobile when one element is slightly wider than the viewport. */
   overflow-x: hidden;
 }
 
 body {
-  background-color: #050816;
   margin: 0;
-  overscroll-behavior: none;
-  caret-color: transparent;
+  background: #050816;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  -webkit-overflow-scrolling: touch;
+
+  overscroll-behavior-y: auto;
+
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-  /* Respects the notch / home-indicator area on modern iPhones so
-     fixed elements (your navbar, footer) don't sit underneath it */
+
+  caret-color: transparent;
+
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
 }
 
-* {
+#root {
+  min-height: 100vh;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
   scroll-behavior: auto;
+}
+
+img,
+video,
+canvas {
+  max-width: 100%;
+  display: block;
+}
+
+button,
+a,
+[role="button"] {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  outline: none;
   -webkit-tap-highlight-color: transparent;
 }
 
-button, a, [role="button"] {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  user-select: none;
-  outline: none;
-  -webkit-touch-callout: none;
-}
-
-button:focus, a:focus, [role="button"]:focus {
+button:focus,
+a:focus {
   outline: none;
 }
 
-input, textarea {
-  -webkit-user-select: text;
+input,
+textarea {
   user-select: text;
   caret-color: auto;
 }
 
+/* =========================
+   Scrollbar
+========================= */
+
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: #090909;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #7c3aed;
-  border-radius: 4px;
+  border-radius: 999px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #9333ea;
 }
+
+/* =========================
+   Desktop Cursor
+========================= */
 
 @media (pointer: fine) {
   * {
@@ -66,17 +99,24 @@ input, textarea {
   }
 }
 
-/* If the person has motion-sensitivity settings on at the OS level,
-   drop every CSS animation/transition to near-zero. Your heavier 3D/
-   cursor-tracking effects already check prefers-reduced-motion in JS,
-   this catches plain CSS transitions that don't. */
+/* =========================
+   Reduced Motion
+========================= */
+
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
+
+/* =========================
+   Orbit Animation
+========================= */
 
 .orbit-scene {
   perspective: 800px;
@@ -86,26 +126,27 @@ input, textarea {
   position: absolute;
   top: 50%;
   left: 50%;
-  border: 1.5px solid rgba(192, 132, 252, 0.55);
   border-radius: 50%;
+  border: 1.5px solid rgba(192,132,252,.55);
   transform-style: preserve-3d;
-  box-shadow: 0 0 15px rgba(168, 85, 247, 0.2);
+  box-shadow: 0 0 15px rgba(168,85,247,.2);
 }
 
 .orbit-ring-3d.r1 {
   width: 220px;
   height: 220px;
   margin: -110px 0 0 -110px;
-  transform: rotateX(72deg) rotate(0deg);
   animation: spin3d 14s linear infinite;
+  transform: rotateX(72deg);
 }
+
 .orbit-ring-3d.r2 {
   width: 360px;
   height: 360px;
   margin: -180px 0 0 -180px;
-  transform: rotateX(72deg) rotate(0deg);
   animation: spin3d 22s linear infinite reverse;
-  opacity: 0.7;
+  opacity: .7;
+  transform: rotateX(72deg);
 }
 
 .orbit-star {
@@ -115,12 +156,16 @@ input, textarea {
   width: 8px;
   height: 8px;
   margin-left: -4px;
-  background: #e9d5ff;
   border-radius: 50%;
-  box-shadow: 0 0 20px 6px rgba(216, 180, 254, 1);
+  background: #e9d5ff;
+  box-shadow: 0 0 20px 6px rgba(216,180,254,1);
 }
 
 @keyframes spin3d {
-  from { transform: rotateX(72deg) rotate(0deg); }
-  to { transform: rotateX(72deg) rotate(360deg); }
+  from {
+    transform: rotateX(72deg) rotate(0deg);
+  }
+  to {
+    transform: rotateX(72deg) rotate(360deg);
+  }
 }
