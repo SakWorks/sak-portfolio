@@ -525,7 +525,6 @@ const MetricTile = ({ metric, index, color }) => (
 
 const DetailConsole = ({ skill, origin, onClose }) => {
   const panelRef = useRef(null);
-  const scrollRef = useRef(null);
   const reducedMotion = usePrefersReducedMotion();
 
   const getOriginTransform = () => {
@@ -545,26 +544,8 @@ const DetailConsole = ({ skill, origin, onClose }) => {
       if (e.key === "Escape") onClose();
     };
     document.addEventListener("keydown", handleKey);
-
-    // Robust body scroll lock: position:fixed prevents mobile browsers
-    // (especially iOS Safari) from letting touch-scroll bleed through to
-    // the page behind the modal — plain overflow:hidden alone is not
-    // reliable on touch devices.
-    const scrollY = window.scrollY;
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = "0";
-    document.body.style.right = "0";
-    document.body.style.overflow = "hidden";
-
     return () => {
       document.removeEventListener("keydown", handleKey);
-      document.body.style.position = "";
-      document.body.style.top = "";
-      document.body.style.left = "";
-      document.body.style.right = "";
-      document.body.style.overflow = "";
-      window.scrollTo(0, scrollY);
     };
   }, [onClose]);
 
@@ -596,12 +577,6 @@ const DetailConsole = ({ skill, origin, onClose }) => {
         .skill-console-scroll::-webkit-scrollbar-thumb { background: ${skill.color}; border-radius: 8px; }
       `}</style>
 
-      {/* Outer motion.div: handles ONLY the open/close transform animation.
-          No overflow property here — that job is fully delegated to the
-          plain inner div below. This split is the fix for trackpad/touch
-          scroll not working: a single element that's both transform-
-          animated AND the scroll container gets its wheel/touch input
-          mishandled by some browsers. */}
       <motion.div
         ref={panelRef}
         role="dialog"
@@ -634,11 +609,16 @@ const DetailConsole = ({ skill, origin, onClose }) => {
           transformOrigin: "center center",
         }}
       >
-        {/* Plain (non-animated) scroll container — owns overflow-y-auto
-            and receives all wheel/touch scroll input directly. */}
+        {/* Plain (non-animated) scroll container. Splitting this out from
+            the motion.div above is the fix: a single element that is both
+            transform-animated (scaleX/scaleY/x/y here) AND the scrollable
+            overflow container gets its wheel/touch input mishandled by
+            some browsers — this is what caused "scrolls once then stops."
+            data-lenis-prevent stops the desktop smooth-scroll library from
+            grabbing trackpad input meant for this panel. */}
         <div
-          ref={scrollRef}
-          className="skill-console-scroll relative w-full h-full overflow-y-auto overscroll-contain"
+          data-lenis-prevent
+          className="skill-console-scroll relative w-full overflow-y-auto overscroll-contain"
           style={{
             maxHeight: "88vh",
             WebkitOverflowScrolling: "touch",
@@ -648,98 +628,97 @@ const DetailConsole = ({ skill, origin, onClose }) => {
             backgroundSize: "18px 18px",
           }}
         >
-          <motion.div
-            aria-hidden="true"
-            initial={{ opacity: 0.55, scale: 0.3 }}
-            animate={{ opacity: 0, scale: 1.7 }}
-            transition={{ duration: 0.9, ease: "easeOut" }}
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: `radial-gradient(circle, ${skill.color}55, transparent 70%)` }}
-          />
+        <motion.div
+          aria-hidden="true"
+          initial={{ opacity: 0.55, scale: 0.3 }}
+          animate={{ opacity: 0, scale: 1.7 }}
+          transition={{ duration: 0.9, ease: "easeOut" }}
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: `radial-gradient(circle, ${skill.color}55, transparent 70%)` }}
+        />
 
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            className="absolute top-5 right-5 z-10 flex items-center justify-center w-9 h-9 rounded-full border border-white/15 bg-white/[0.05] text-white hover:border-purple-400/60 transition-colors duration-200"
-          >
-            <FaTimes size={13} />
-          </button>
+        <button
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute top-5 right-5 z-10 flex items-center justify-center w-9 h-9 rounded-full border border-white/15 bg-white/[0.05] text-white hover:border-purple-400/60 transition-colors duration-200"
+        >
+          <FaTimes size={13} />
+        </button>
 
-          <div className="relative p-6 md:p-8">
-            <div className="flex items-center gap-4 mb-6">
-              <motion.div
-                initial={{ scale: 0.7, rotate: -15 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: "spring", stiffness: 260, damping: 18 }}
-                className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl shrink-0"
-                style={{ backgroundColor: skill.color, boxShadow: `0 0 24px ${skill.color}77` }}
-              >
-                {skill.icon}
-              </motion.div>
-              <div className="flex-1">
-                <h3 className="text-white font-bold text-xl mb-1">{skill.name}</h3>
-                <div className="flex items-center flex-wrap gap-2 mb-2">
-                  <span
-                    className="text-xs px-3 py-1 rounded-full border"
-                    style={{ borderColor: `${skill.color}66`, color: skill.color, background: `${skill.color}15` }}
-                  >
-                    {skill.tag}
-                  </span>
-                  <span className="text-gray-400 text-xs font-mono">{skill.experience}</span>
-                </div>
-                <SignalMeter level={skill.level} color={skill.color} />
+        <div className="relative p-6 md:p-8">
+          <div className="flex items-center gap-4 mb-6">
+            <motion.div
+              initial={{ scale: 0.7, rotate: -15 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 260, damping: 18 }}
+              className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl shrink-0"
+              style={{ backgroundColor: skill.color, boxShadow: `0 0 24px ${skill.color}77` }}
+            >
+              {skill.icon}
+            </motion.div>
+            <div className="flex-1">
+              <h3 className="text-white font-bold text-xl mb-1">{skill.name}</h3>
+              <div className="flex items-center flex-wrap gap-2 mb-2">
+                <span
+                  className="text-xs px-3 py-1 rounded-full border"
+                  style={{ borderColor: `${skill.color}66`, color: skill.color, background: `${skill.color}15` }}
+                >
+                  {skill.tag}
+                </span>
+                <span className="text-gray-400 text-xs font-mono">{skill.experience}</span>
               </div>
-            </div>
-
-            <div className="flex items-center gap-1.5 mb-6 -mt-2">
-              <motion.span
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                className="w-1.5 h-1.5 rounded-full"
-                style={{ background: skill.color, boxShadow: `0 0 6px ${skill.color}` }}
-              />
-              <span className="text-[10px] text-gray-500 tracking-wide uppercase font-mono">Verified Professional</span>
-            </div>
-
-            <div className="mb-6">
-              <p className="text-xs tracking-wide uppercase mb-3" style={{ color: skill.color }}>
-                Core Capabilities
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {skill.capabilities.map((cap, i) => (
-                  <CapabilityCapsule key={cap.label} cap={cap} index={i} color={skill.color} />
-                ))}
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <p className="text-xs tracking-wide uppercase mb-3" style={{ color: skill.color }}>
-                How I Approach It
-              </p>
-              <div className="flex flex-col pl-1">
-                {skill.process.map((step, i) => (
-                  <WorkflowStep key={step} step={step} index={i} skillColor={skill.color} isLast={i === skill.process.length - 1} />
-                ))}
-              </div>
-            </div>
-
-            <div className="pt-5 border-t border-white/10">
-              <p className="text-xs tracking-wide uppercase mb-3" style={{ color: skill.color }}>
-                Professional Impact
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                {skill.metrics.map((m, i) => (
-                  <MetricTile key={m.label} metric={m} index={i} color={skill.color} />
-                ))}
-              </div>
+              <SignalMeter level={skill.level} color={skill.color} />
             </div>
           </div>
+
+          <div className="flex items-center gap-1.5 mb-6 -mt-2">
+            <motion.span
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ background: skill.color, boxShadow: `0 0 6px ${skill.color}` }}
+            />
+            <span className="text-[10px] text-gray-500 tracking-wide uppercase font-mono">Verified Professional</span>
+          </div>
+
+          <div className="mb-6">
+            <p className="text-xs tracking-wide uppercase mb-3" style={{ color: skill.color }}>
+              Core Capabilities
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {skill.capabilities.map((cap, i) => (
+                <CapabilityCapsule key={cap.label} cap={cap} index={i} color={skill.color} />
+              ))}
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <p className="text-xs tracking-wide uppercase mb-3" style={{ color: skill.color }}>
+              How I Approach It
+            </p>
+            <div className="flex flex-col pl-1">
+              {skill.process.map((step, i) => (
+                <WorkflowStep key={step} step={step} index={i} skillColor={skill.color} isLast={i === skill.process.length - 1} />
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-5 border-t border-white/10">
+            <p className="text-xs tracking-wide uppercase mb-3" style={{ color: skill.color }}>
+              Professional Impact
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {skill.metrics.map((m, i) => (
+                <MetricTile key={m.label} metric={m} index={i} color={skill.color} />
+              ))}
+            </div>
+          </div>
+        </div>
         </div>
       </motion.div>
     </motion.div>
   );
 };
-
 // ---------- Main section ----------
 
 const Skills = () => {
